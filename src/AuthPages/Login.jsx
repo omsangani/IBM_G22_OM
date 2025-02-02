@@ -150,7 +150,7 @@ function Login() {
       {/* Login Form */}
       <div className="w-full md:w-1/2 h-screen flex items-center justify-center z-40">
         <div className="w-full max-w-md p-8 rounded-lg animate-fade-in">
-          <h1 className="text-6xl font-stretch-extra-expanded font-bold mb-10 text-white transition-transform transform hover:scale-105">MRS</h1>
+          <h1 className="text-6xl font-stretch-extra-expanded font-bold mb-10 text-white transition-transform transform">MRS</h1>
           <h2 className="text-2xl font-semibold mb-4 animate-slide-in">Login</h2>
           <form onSubmit={handleLogin}>
             <div className="mb-4">
@@ -202,13 +202,19 @@ function Login() {
             </button>
           </form>
           <p className="text-sm text-center mt-4">
-            Not have an Account? <span className="text-blue-400 cursor-pointer hover:underline" onClick={() => navigate('/signup')}>Signup Here</span>
+            Not have an Account? <span className="text-blue-400 cursor-pointer" onClick={() => navigate('/signup')}>Signup Here</span>
           </p>
+          <p className="text-sm text-center mt-4">
+        <span className="text-blue-400 cursor-pointer"  onClick={() => navigate('/forgotpassword')}>
+    Forgot Password?
+  </span>
+</p>
+
         </div>
       </div>
 
       {/* Right Side - Movie Poster */}
-      <div className="hidden md:flex md:w-1/2 bg-cover bg-center transition-all duration-500 hover:scale-105" 
+      <div className="hidden md:flex md:w-1/2 bg-cover bg-center transition-all duration-500" 
            style={{ backgroundImage: "url('https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/8d8f28105415493.619ded067937d.jpg')" }}>
       </div>
     </div>
