@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Film, 
@@ -13,6 +14,7 @@ import Admin from './Admin';
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const navigate = useNavigate();
 
   const sidebarItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -20,6 +22,16 @@ const Dashboard = () => {
     { id: 'feedback', icon: MessageSquare, label: 'Feedback' },
     { id: 'logout', icon: LogOut, label: 'Logout' }
   ];
+
+  const handleTabClick = (tabId) => {
+    if (tabId === 'logout') {
+      // Clear admin token and redirect to admin login
+      localStorage.removeItem('adminToken');
+      navigate('/admin/login');
+    } else {
+      setActiveTab(tabId);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -35,7 +47,7 @@ const Dashboard = () => {
           {sidebarItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleTabClick(item.id)}
               className={`w-full flex items-center p-3 mb-2 rounded-lg transition-colors
                 ${activeTab === item.id ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-100'}
               `}

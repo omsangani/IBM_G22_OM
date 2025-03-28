@@ -1,59 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, Label  } from 'recharts';
-import { Users, Film, TrendingUp, Clock, Star } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
+import { Users, Film, TrendingUp, Clock, Star, Settings, List, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Simulated data fetching
   useEffect(() => {
     const fetchData = async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setStats({
-        totalUsers: 1250,
-        activeUsers: 456,
-        totalMovies: 890,
-        recentMovies: 23,
-        popularMovies: [
-          { title: 'Inception', views: 1200 },
-          { title: 'The Dark Knight', views: 980 },
-          { title: 'Interstellar', views: 850 },
-          { title: 'Pulp Fiction', views: 750 },
-          { title: 'The Matrix', views: 700 }
-        ],
-        genreData: [
-          { name: 'Action', value: 35, description: '35% - Popular among 18-34 age group' },
-          { name: 'Drama', value: 25, description: '25% - High critic ratings' },
-          { name: 'Comedy', value: 20, description: '20% - Most watched on weekends' },
-          { name: 'Sci-Fi', value: 15, description: '15% - Growing trend' },
-          { name: 'Horror', value: 5, description: '5% - Seasonal popularity' }
-        ],
-        recommendationData: [
-          { genre: 'Action', count: 450 },
-          { genre: 'Drama', count: 380 },
-          { genre: 'Comedy', count: 300 },
-          { genre: 'Sci-Fi', count: 280 },
-          { genre: 'Horror', count: 150 }
-        ],
-        recentFeedback: [
-          { user: 'John Doe', movie: 'Inception', rating: 5, comment: 'Masterpiece!' },
-          { user: 'Jane Smith', movie: 'The Matrix', rating: 4, comment: 'Great movie!' },
-          { user: 'Mike Johnson', movie: 'Interstellar', rating: 5, comment: 'Mind-blowing!' }
-        ]
-      });
-      setLoading(false);
+      try {
+        const token = localStorage.getItem('adminToken');
+        console.log('Admin token:', token); // Debug log
+
+        if (!token) {
+          throw new Error('Admin authentication required');
+        }
+
+        console.log('Fetching admin stats...'); // Debug log
+        const response = await fetch('http://localhost:5000/api/admin/stats', {
+          headers: {
+            'x-auth-token': token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Response status:', response.status); // Debug log
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Failed to fetch admin statistics' }));
+          console.error('Error response:', errorData); // Debug log
+          throw new Error(errorData.message || 'Failed to fetch admin statistics');
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data); // Debug log
+
+        if (!data) {
+          throw new Error('No data received from server');
+        }
+        
+        setStats(data);
+      } catch (err) {
+        console.error('Error fetching admin stats:', err);
+        setError(err.message || 'An error occurred while fetching admin statistics');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    navigate('/admin/login');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-red-500 text-center">
+          <p className="text-xl font-semibold mb-2">Error Loading Dashboard</p>
+          <p>{error}</p>
+          <button 
+            onClick={() => navigate('/admin/login')}
+            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          >
+            Return to Login
+          </button>
+        </div>
       </div>
     );
   }
@@ -78,9 +104,8 @@ const Admin = () => {
       return (
         <div className="bg-white p-4 shadow-lg rounded-lg border">
           <p className="font-semibold text-gray-800">{data.name}</p>
-          <p className="text-gray-600">{data.description}</p>
           <p className="text-indigo-600 font-medium mt-1">
-            {data.value}% of total movies
+            {data.value.toFixed(1)}% of total movies
           </p>
         </div>
       );
@@ -90,6 +115,36 @@ const Admin = () => {
 
   return (
     <div className="space-y-6">
+      {/* Navigation Bar */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => navigate('/admin/movies')}
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              <List size={20} className="mr-2" />
+              Manage Movies
+            </button>
+            <button
+              onClick={() => navigate('/admin/users')}
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              <User size={20} className="mr-2" />
+              Manage Users
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              <Settings size={20} className="mr-2" />
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard icon={Users} title="Total Users" value={stats.totalUsers} />
@@ -127,7 +182,7 @@ const Admin = () => {
                       textAnchor={x > cx ? 'start' : 'end'}
                       dominantBaseline="central"
                     >
-                      {`${stats.genreData[index].name} (${value}%)`}
+                      {`${stats.genreData[index].name} (${value.toFixed(1)}%)`}
                     </text>
                   );
                 }}
@@ -157,7 +212,7 @@ const Admin = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="count" fill="#4F46E5" name="Number of Recommendations" />
+              <Bar dataKey="count" fill="#4F46E5" name="Number of Movies" />
             </BarChart>
           </ResponsiveContainer>
         </div>

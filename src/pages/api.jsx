@@ -78,3 +78,4 @@ export const fetchMovieDetails = async (movieId) => {
     return null;
   }
 };
+
