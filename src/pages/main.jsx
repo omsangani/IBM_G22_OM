@@ -22,7 +22,7 @@ function Main() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar onSearch={handleSearch} />
+      {/* <Navbar onSearch={handleSearch} /> */}
       {selectedMovie ? (
         <MovieDetails movie={selectedMovie} onClose={handleCloseDetails} />
       ) : (
